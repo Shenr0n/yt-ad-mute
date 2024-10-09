@@ -8,20 +8,30 @@
         if (!videoPlayer) {
             videoPlayer = document.querySelector('video');
         }
-
         if (videoPlayer) {
+            attachVolumeChangeListener(videoPlayer);
             handleAdState(videoPlayer);
         }
     });
-
+    
     // Start observing the video player DOM
     observer.observe(document, { childList: true, subtree: true });
-    
+
     window.addEventListener('load', ()=> {
         if (videoPlayer) {
+            attachVolumeChangeListener(videoPlayer);
             handleAdState(videoPlayer);
         }
     })
+    
+    // Attach volume change event listener
+    function attachVolumeChangeListener(videoPlayer) {
+        videoPlayer.addEventListener('volumechange', () => {
+            if (!adMuted) {
+                userMuted = videoPlayer.muted;
+            }
+        });
+    }
 
     // Check if an ad is playing
     function handleAdState(videoPlayer) {
@@ -38,11 +48,4 @@
             //console.log('No ad detected. Unmuting video');
         }
     }
-
-    // Event listener for when the video is muted/unmuted by the user
-    videoPlayer.addEventListener('volumechange', () => {
-        if(!adMuted){
-            userMuted = videoPlayer.muted;
-        }    
-    });
 })();
