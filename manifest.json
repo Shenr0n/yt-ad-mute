@@ -5,8 +5,7 @@
     "description": "Mutes audio during YouTube ads",
     "permissions": [
       "tabs",
-      "activeTab",
-      "storage"
+      "activeTab"
     ],
     "host_permissions": [
       "*://www.youtube.com/*"
