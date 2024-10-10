@@ -2,6 +2,7 @@
     let videoPlayer = document.querySelector('video');
     let adMuted = false;
     let userMuted = false;
+    let isUserAction = false;
 
     // Observe changes in the video player
     const observer = new MutationObserver(() => {
@@ -22,13 +23,22 @@
             attachVolumeChangeListener(videoPlayer);
             handleAdState(videoPlayer);
         }
-    })
-    
+    });
+
+    // Watch for changes specifically in ad-related elements
+    const adObserver = new MutationObserver(() => {
+        handleAdState(videoPlayer);
+    });
+
+
     // Attach volume change event listener
     function attachVolumeChangeListener(videoPlayer) {
         videoPlayer.addEventListener('volumechange', () => {
             if (!adMuted) {
-                userMuted = videoPlayer.muted;
+                if (!isUserAction) {
+                    userMuted = videoPlayer.muted;
+                }
+                isUserAction = false;
             }
         });
     }
@@ -41,11 +51,20 @@
             videoPlayer.muted = true;
             adMuted = true;
             //console.log('Ad detected. Now muting');
+            adObserver.observe(adContainer, { attributes: true, childList: true, subtree: true });
 
-        } else if (!adContainer && adMuted){
+        }
+        if (!adContainer && adMuted){
             videoPlayer.muted = userMuted;
-            isMuted = false;
+            adMuted = false;
             //console.log('No ad detected. Unmuting video');
+            adObserver.disconnect();
         }
     }
+
+    // Listen for manual user mute/unmute actions
+    document.querySelector('.ytp-mute-button').addEventListener('click', () => {
+        isUserAction = true;
+        userMuted = videoPlayer.muted;
+    });
 })();
